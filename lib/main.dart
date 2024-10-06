@@ -35,18 +35,67 @@ class _CalculatorPageState extends State<CalculatorPage> {
 
   void _onPress(String value) {
     setState(() {
-      if (RegExp(r'^[0-9]$').hasMatch(value)) { //check if the button pressed is a num
+      if (RegExp(r'^[0-9]$').hasMatch(value)) {
         if (_operatorSelected) {
           _second += value;
         } else {
           _first += value;
         }
         _displayText += value;
-      } else if (RegExp(r'^[+\-*/]$').hasMatch(value) && _first.isNotEmpty) { //check if the button pressed is a operator 
+      } else if (RegExp(r'^[+\-*/]$').hasMatch(value) && _first.isNotEmpty) {
         _operator = value;
         _operatorSelected = true;
         _displayText += ' $value ';
+      } else if (value == '=' && _first.isNotEmpty && _second.isNotEmpty && _operator.isNotEmpty) {
+        _evaluateExpression();
+      } else if (value == 'C') {
+        _clear();
       }
+    });
+  }
+
+  void _evaluateExpression() {
+    int num1 = int.parse(_first);
+    int num2 = int.parse(_second);
+    int result = 0;
+
+    switch (_operator) {
+      case '+':
+        result = num1 + num2;
+        break;
+      case '-':
+        result = num1 - num2;
+        break;
+      case '*':
+        result = num1 * num2;
+        break;
+      case '/':
+        if (num2 != 0) {
+          result = num1 ~/ num2;
+        } else {
+          _displayText = 'Error';
+          _clear();
+          return;
+        }
+        break;
+    }
+
+    setState(() {
+      _displayText = result.toString();
+      _first = result.toString();
+      _second = '';
+      _operator = '';
+      _operatorSelected = false;
+    });
+  }
+
+  void _clear() {
+    setState(() {
+      _displayText = '';
+      _first = '';
+      _second = '';
+      _operator = '';
+      _operatorSelected = false;
     });
   }
 
@@ -71,7 +120,7 @@ class _CalculatorPageState extends State<CalculatorPage> {
           _button(['7', '8', '9', '/']),
           _button(['4', '5', '6', '*']),
           _button(['1', '2', '3', '+']),
-          _button(['0', 'C', '=', '-']), 
+          _button(['0', 'C', '=', '-']),
         ],
       ),
     );
@@ -88,7 +137,7 @@ class _CalculatorPageState extends State<CalculatorPage> {
 
   Widget _buildButton(String value) {
     return InkWell(
-      onTap: () => _onPress(value), 
+      onTap: () => _onPress(value),
       child: Container(
         height: 100,
         width: 100,
@@ -107,4 +156,7 @@ class _CalculatorPageState extends State<CalculatorPage> {
     );
   }
 }
+
+
+
 
